@@ -70,6 +70,10 @@ public class Person {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dob;
 
+    @NonNull
+    @Size(min = 5, max = 20, message = "Username (Min of 5 and Max of 20 characters)")
+    private String username;
+
     // To be implemented
     @ManyToMany(fetch = EAGER)
     private Collection<PersonRole> roles = new ArrayList<>();
@@ -88,11 +92,12 @@ public class Person {
     
 
     // Constructor used when building object from an API
-    public Person(String email, String password, String name, Date dob) {
+    public Person(String email, String password, String name, Date dob, String username) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.dob = dob;
+        this.username = username;
     }
 
     // A custom getter to return age from dob attribute
@@ -118,6 +123,7 @@ public class Person {
         } catch (Exception e) {
             // no actions as dob default is good enough
         }
+        p1.setUsername("Thomy123");
 
         Person p2 = new Person();
         p2.setName("Alexander Graham Bell");
@@ -128,6 +134,7 @@ public class Person {
             p2.setDob(d);
         } catch (Exception e) {
         }
+        p2.setUsername("Lex22");
 
         Person p3 = new Person();
         p3.setName("Nikola Tesla");
@@ -138,6 +145,7 @@ public class Person {
             p3.setDob(d);
         } catch (Exception e) {
         }
+        p3.setUsername("BestNikola");
 
         Person p4 = new Person();
         p4.setName("Madam Currie");
@@ -148,6 +156,7 @@ public class Person {
             p4.setDob(d);
         } catch (Exception e) {
         }
+        p4.setUsername("madamcurrie");
 
         Person p5 = new Person();
         p5.setName("John Mortensen");
@@ -158,6 +167,7 @@ public class Person {
             p5.setDob(d);
         } catch (Exception e) {
         }
+        p5.setUsername("jmort29");
 
         // Array definition and data initialization
         Person persons[] = {p1, p2, p3, p4, p5};
