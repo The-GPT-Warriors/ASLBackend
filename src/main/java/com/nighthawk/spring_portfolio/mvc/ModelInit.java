@@ -53,12 +53,12 @@ public class ModelInit {
             Person[] personArray = Person.init();
             for (Person person : personArray) {
                 //findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase
-                List<Person> personFound = personService.list(person.getName(), person.getEmail());  // lookup
+                List<Person> personFound = personService.list(person.getName(), person.getUsername());  // lookup
                 if (personFound.size() == 0) {
                     personService.save(person);  // save
 
                     // Each "test person" starts with a "test note"
-                    String text = "Test " + person.getEmail();
+                    String text = "Test " + person.getUsername();
                     Note n = new Note(text, person);  // constructor uses new person as Many-to-One association
                     noteRepo.save(n);  // JPA Save  
                     personService.addRoleToPerson(person.getUsername(), "ROLE_STUDENT");                
