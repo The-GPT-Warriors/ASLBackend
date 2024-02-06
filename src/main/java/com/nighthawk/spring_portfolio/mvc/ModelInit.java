@@ -12,6 +12,8 @@ import com.nighthawk.spring_portfolio.mvc.note.Note;
 import com.nighthawk.spring_portfolio.mvc.note.NoteJpaRepository;
 import com.nighthawk.spring_portfolio.mvc.person.Person;
 import com.nighthawk.spring_portfolio.mvc.person.PersonDetailsService;
+import com.nighthawk.spring_portfolio.mvc.person.PersonRole;
+import com.nighthawk.spring_portfolio.mvc.person.PersonRoleJpaRepository;
 
 import java.util.List;
 
@@ -21,6 +23,7 @@ public class ModelInit {
     @Autowired JokesJpaRepository jokesRepo;
     @Autowired NoteJpaRepository noteRepo;
     @Autowired PersonDetailsService personService;
+    @Autowired PersonRoleJpaRepository roleRepo;
 
     @Bean
     CommandLineRunner run() {  // The run() method will be executed after the application starts
@@ -34,6 +37,18 @@ public class ModelInit {
                     jokesRepo.save(new Jokes(null, joke, 0, 0)); //JPA save
             }
 
+            PersonRole[] personRoles = PersonRole.init();
+            for (PersonRole role : personRoles) {
+                PersonRole existingRole = roleRepo.findByName(role.getName());
+                if (existingRole != null) {
+                    // role already exists
+                    continue;
+                } else {
+                    // role doesn't exist
+                    roleRepo.save(role);
+                }
+            }
+
             // Person database is populated with test data
             Person[] personArray = Person.init();
             for (Person person : personArray) {
@@ -45,9 +60,15 @@ public class ModelInit {
                     // Each "test person" starts with a "test note"
                     String text = "Test " + person.getEmail();
                     Note n = new Note(text, person);  // constructor uses new person as Many-to-One association
-                    noteRepo.save(n);  // JPA Save                  
+                    noteRepo.save(n);  // JPA Save  
+                    personService.addRoleToPerson(person.getUsername(), "ROLE_STUDENT");                
                 }
             }
+            personService.addRoleToPerson(personArray[0].getUsername(), "ROLE_ADMIN");
+            personService.addRoleToPerson(personArray[1].getUsername(), "ROLE_ADMIN");
+            personService.addRoleToPerson(personArray[2].getUsername(), "ROLE_ADMIN");
+            personService.addRoleToPerson(personArray[3].getUsername(), "ROLE_ADMIN");
+            personService.addRoleToPerson(personArray[4].getUsername(), "ROLE_ADMIN");
 
         };
     }
