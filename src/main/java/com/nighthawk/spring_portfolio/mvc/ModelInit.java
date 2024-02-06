@@ -61,7 +61,11 @@ public class ModelInit {
                     String text = "Test " + person.getUsername();
                     Note n = new Note(text, person);  // constructor uses new person as Many-to-One association
                     noteRepo.save(n);  // JPA Save  
-                    personService.addRoleToPerson(person.getUsername(), "ROLE_STUDENT");                
+                    System.out.println(person.getUsername());
+                    personService.addRoleToPerson(person.getUsername(), "ROLE_STUDENT");     
+                } else {
+                    System.out.println("Person already exists: " + person.getName() + ", " + person.getUsername());
+                    personService.addRoleToPerson(person.getUsername(), "ROLE_STUDENT");
                 }
             }
             personService.addRoleToPerson(personArray[0].getUsername(), "ROLE_ADMIN");
