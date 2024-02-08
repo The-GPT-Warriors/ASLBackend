@@ -52,7 +52,7 @@ public class PersonApiController {
     @PreAuthorize("isAuthenticated()")  // Restrict access to authenticated users
     public ResponseEntity<Person> getAuthenticatedPersonData() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Person person = repository.findByEmail(username);  // Retrieve data for the authenticated user
+        Person person = repository.findByUsername(username);  // Retrieve data for the authenticated user
         return new ResponseEntity<>(person, HttpStatus.OK);
     }
 
@@ -116,7 +116,7 @@ public class PersonApiController {
         String term = (String) map.get("term");
 
         // JPA query to filter on term
-        List<Person> list = repository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(term, term);
+        List<Person> list = repository.findByNameContainingIgnoreCaseOrUsernameContainingIgnoreCase(term, term);
 
         // return resulting list and status, error checking should be added
         return new ResponseEntity<>(list, HttpStatus.OK);

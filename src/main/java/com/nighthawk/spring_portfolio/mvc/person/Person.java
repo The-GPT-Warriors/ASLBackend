@@ -71,7 +71,7 @@ public class Person {
     private Date dob;
 
     @NonNull
-    @Size(min = 5, max = 20, message = "Username (Min of 5 and Max of 20 characters)")
+    @Size(min = 2, max = 20, message = "Username (Min of 2 and Max of 20 characters)")
     private String username;
 
     // To be implemented
@@ -166,8 +166,8 @@ public class Person {
             Date d = new SimpleDateFormat("MM-dd-yyyy").parse("10-21-1959");
             p5.setDob(d);
         } catch (Exception e) {
-        }
         p5.setUsername("jmort29");
+        }
 
         // Array definition and data initialization
         Person persons[] = {p1, p2, p3, p4, p5};
