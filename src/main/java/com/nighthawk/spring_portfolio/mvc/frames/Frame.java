@@ -1,33 +1,31 @@
 package com.nighthawk.spring_portfolio.mvc.frames;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 @Entity
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Frame {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private String fileName;
+    private String mnistData;
 
-    @Column
-    private String imageEncoder;
+    public Long getId() {
+        return id;
+    }
 
-    public Frame(String fileName, String imageEncoder) {
-        this.fileName = fileName;
-        this.imageEncoder = imageEncoder;
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getMnistData() {
+        return mnistData;
+    }
+
+    public void setMnistData(String mnistData) {
+        this.mnistData = mnistData;
     }
 }

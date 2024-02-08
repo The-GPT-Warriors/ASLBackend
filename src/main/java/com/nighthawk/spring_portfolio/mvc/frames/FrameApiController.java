@@ -1,82 +1,93 @@
 package com.nighthawk.spring_portfolio.mvc.frames;
 
-import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import java.util.List;
+import java.util.Base64;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("/image")
 public class FrameApiController {
-    @Autowired
-    private FrameJpaRepository uploadFileRepository;
 
     @Autowired
-    FrameApiAppl imageService;
+    private FrameJpaRepository frameJpaRepository;
 
-    @Autowired
-    ResourceLoader resourceLoader;
+    @PostMapping("/image")
+    public String processImage(@RequestBody ImageData imageData) {
+        // convert image to MNIST format
+        String mnistData = convertToMNIST(imageData.getImage(), imageData.getLabel());
 
-    @GetMapping("/")
-    public ResponseEntity<List<Frame>> getFrame() {
-        return new ResponseEntity<>(uploadFileRepository.findAll(), HttpStatus.OK);
+        // store MNIST data in database
+        Frame frame = new Frame();
+        frame.setMnistData(mnistData);
+        frameJpaRepository.save(frame);
+
+        return "{\"message\": \"Image uploaded successfully!\"}";
     }
-    // handle http post request for saving an image
-    @PostMapping
-    public ResponseEntity<String> save(MultipartFile image, @RequestParam("fileName") String fileName) throws IOException {
-        String encodedString = Base64.getEncoder().encodeToString(image.getBytes());
-        Frame file = new Frame(fileName, encodedString);
-        uploadFileRepository.save(file);
 
-        // Create a response object
-        ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writeValueAsString(Map.of("message", "Image has been uploaded"));
-
-        return new ResponseEntity<>(jsonResponse, HttpStatus.CREATED);
+    @GetMapping("/mnist")
+    public List<Frame> getMnistData() {
+        return frameJpaRepository.findAll();
     }
-    // handle http get request for downloading an image by its filename
-    @GetMapping("/{fileName}")
-    public ResponseEntity<byte[]> downloadImage(@PathVariable String fileName) {
-        // check if the image with the given filename exists in the repository
-        Optional<Frame> optional = uploadFileRepository.findByfileName(fileName);
-        if (optional.isPresent()) {
-            Frame file = optional.get();
-            String data = file.getImageEncoder();
-            byte[] imageBytes = Base64.getDecoder().decode(data);
 
-            // determine the MediaType based on the file extension
-            MediaType mediaType = MediaType.IMAGE_PNG; // default set to PNG
-            if (fileName.toLowerCase().endsWith(".jpg") || fileName.toLowerCase().endsWith(".jpeg")) {
-                mediaType = MediaType.IMAGE_JPEG;
-            } else if (fileName.toLowerCase().endsWith(".gif")) {
-                mediaType = MediaType.IMAGE_GIF;
-            } 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(mediaType);
+    // method for MNIST format
+    private String convertToMNIST(String imageData, int label) {
+        try {
+            // decode Base64 image string
+            byte[] imageBytes = Base64.getDecoder().decode(imageData);
+            ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+            BufferedImage image = ImageIO.read(bis);
 
-            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
-        } else {
-            return ResponseEntity.notFound().build();
+            // resize image to 28 x 28
+            BufferedImage resizedImage = new BufferedImage(28, 28, BufferedImage.TYPE_BYTE_GRAY);
+            Graphics2D g = resizedImage.createGraphics();
+            g.drawImage(image, 0, 0, 28, 28, null);
+            g.dispose();
+
+            // convert BufferedImage to MNIST data format
+            StringBuilder mnistData = new StringBuilder();
+            for (int y = 0; y < 28; y++) {
+                for (int x = 0; x < 28; x++) {
+                    int pixel = resizedImage.getRGB(x, y) & 0xFF; // grayscale value
+                    mnistData.append(pixel).append(",");
+                }
+            }
+            mnistData.deleteCharAt(mnistData.length() - 1);
+            return mnistData.toString();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static class ImageData {
+        //store base64 encoded string of the image
+        private String image;
+        // store the label associated with image
+        private int label;
+
+        public String getImage() {
+            return image;
+        }
+
+        public void setImage(String image) {
+            this.image = image;
+        }
+
+        public int getLabel() {
+            return label;
+        }
+
+        public void setLabel(int label) {
+            this.label = label;
+
         }
     }
 }
