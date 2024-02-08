@@ -22,6 +22,7 @@ public class Person extends Generics{
     private String password;
     private String name;
     private Date dob;
+    private String username;
     
 
     // Constructor with zero arguments
@@ -30,12 +31,13 @@ public class Person extends Generics{
     }
 
     // Constructor used when building object from an API
-    public Person(String uid, String password, String name, Date dob) {
+    public Person(String uid, String password, String name, Date dob, String username) {
         this();  // runs zero argument constructor
         this.uid = uid;
         this.password = password;
         this.name = name;
         this.dob = dob;
+        this.username = username;
     }
 
     /* 'Generics' requires getKey to help enforce KeyTypes usage */
@@ -93,6 +95,10 @@ public class Person extends Generics{
         this.dob = dob;
     }
 
+    private void setUsername(String username) {
+        this.username = username;
+    }
+
     // A custom getter to return age from dob attribute
     public int getAge() {
         if (this.dob != null) {
@@ -108,6 +114,7 @@ public class Person extends Generics{
         Person p1 = new Person();
         p1.setName("Thomas Edison");
         p1.setUid("toby@gmail.com");
+        p1.setUsername("Thomy123");
         p1.setPassword("123Toby!");
         // adding Note to notes collection
         try {  // All data that converts formats could fail
@@ -120,6 +127,7 @@ public class Person extends Generics{
         Person p2 = new Person();
         p2.setName("Alexander Graham Bell");
         p2.setUid("lexb@gmail.com");
+        p2.setUsername("Lex22");
         p2.setPassword("123LexB!");
         try {
             Date d = new SimpleDateFormat("MM-dd-yyyy").parse("01-01-1845");
@@ -130,6 +138,7 @@ public class Person extends Generics{
         Person p3 = new Person();
         p3.setName("Nikola Tesla");
         p3.setUid("niko@gmail.com");
+        p3.setUsername("BestNikola");
         p3.setPassword("123Niko!");
         try {
             Date d = new SimpleDateFormat("MM-dd-yyyy").parse("01-01-1850");
@@ -143,15 +152,17 @@ public class Person extends Generics{
             p4 = new Person(
                 "madam@gmail.com",
                 "123Madam!",
-                "Madam Currie", 
-                new SimpleDateFormat("MM-dd-yyyy").parse("01-01-2023")
+                "Madam Currie",
+                new SimpleDateFormat("MM-dd-yyyy").parse("01-01-2023"),
+                "madamcurrie"
             );
     
             p5 = new Person(
                 "jm1021@gmail.com", 
                 "123Qwerty!",
                 "John Mortensen",
-                new SimpleDateFormat("MM-dd-yyyy").parse("10-21-1959")
+                new SimpleDateFormat("MM-dd-yyyy").parse("10-21-1959"),
+                "jmort29"
             );
         } catch (Exception e) {
         }
