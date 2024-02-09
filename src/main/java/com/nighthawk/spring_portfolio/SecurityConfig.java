@@ -70,8 +70,9 @@ public class SecurityConfig {
 				// list the requests/endpoints need to be authenticated
 				.authorizeHttpRequests(auth -> auth
 					.requestMatchers("/authenticate").permitAll()
-					.requestMatchers("/mvc/person/update/**", "/mvc/person/delete/**").authenticated()
-					.requestMatchers("/api/person/delete/**").authenticated()
+					.requestMatchers("/api/person/delete/**").hasAnyAuthority("ROLE_ADMIN")
+					.requestMatchers("/api/person/delete/self").hasAnyAuthority("ROLE_STUDENT")
+					.requestMatchers("/api/person/post/**").permitAll()
 					.requestMatchers("/**").permitAll()
 				)
 				// support cors
@@ -82,7 +83,7 @@ public class SecurityConfig {
 					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Headers", "Content-Type", "Authorization", "x-csrf-token"))
 					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-MaxAge", "600"))
 					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Methods", "POST", "GET", "OPTIONS", "HEAD"))
-					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", "http://localhost:4000", "https://the-gpt-warriors.github.io/"))
+					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", "https://the-gpt-warriors.github.io/"))
 				)
 				.formLogin(form -> form 
 					.loginPage("/login")
