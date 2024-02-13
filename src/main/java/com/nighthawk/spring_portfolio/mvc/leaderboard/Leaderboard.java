@@ -18,11 +18,11 @@ public class Leaderboard {
     private String playerName;
 
     private int score;
-    private int highestStreak;
+    private int recentStreak;
 
-    public Leaderboard(String playerName, int score, int highestStreak) {
+    public Leaderboard(String playerName, int score, int recentStreak) {
         this.playerName = playerName;
         this.score = score;
-        this.highestStreak = highestStreak;
+        this.recentStreak = recentStreak;
     }
 }
