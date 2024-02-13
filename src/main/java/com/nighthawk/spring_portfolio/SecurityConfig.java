@@ -7,7 +7,7 @@ import com.nighthawk.spring_portfolio.mvc.person.PersonDetailsService;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,7 +20,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 
@@ -69,10 +68,15 @@ public class SecurityConfig {
 				)
 				// list the requests/endpoints need to be authenticated
 				.authorizeHttpRequests(auth -> auth
-					.requestMatchers("/authenticate").permitAll()
-					.requestMatchers("/api/person/delete/**").hasAnyAuthority("ROLE_ADMIN")
-					.requestMatchers("/api/person/delete/self").hasAnyAuthority("ROLE_STUDENT")
-					.requestMatchers("/api/person/post/**").permitAll()
+					.requestMatchers(HttpMethod.POST,"/authenticate").permitAll()
+				    .requestMatchers(HttpMethod.POST, "/api/person/**").permitAll()
+					.requestMatchers(HttpMethod.GET, "/api/person/**").authenticated()
+					.requestMatchers(HttpMethod.PUT, "/api/person/**").authenticated()
+					.requestMatchers(HttpMethod.DELETE, "/api/person/**").hasAuthority("ROLE_ADMIN")
+					.requestMatchers("/mvc/person/create/**").permitAll()
+					.requestMatchers("/mvc/person/read/**").authenticated()
+					.requestMatchers("/mvc/person/update/**").authenticated()
+					.requestMatchers( "/mvc/person/delete/**").hasAuthority("ROLE_ADMIN")
 					.requestMatchers("/**").permitAll()
 				)
 				// support cors
@@ -83,13 +87,13 @@ public class SecurityConfig {
 					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Headers", "Content-Type", "Authorization", "x-csrf-token"))
 					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-MaxAge", "600"))
 					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Methods", "POST", "GET", "OPTIONS", "HEAD"))
-					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", "https://the-gpt-warriors.github.io/"))
+					.addHeaderWriter(new StaticHeadersWriter("Access-Control-Allow-Origin", "https://the-gpt-warriors.github.io/", "http://127.0.0.1:4200/"))
 				)
 				.formLogin(form -> form 
 					.loginPage("/login")
-				)
+				) 
 				.logout(logout -> logout
-					.logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+					.deleteCookies("jwt")
 					.logoutSuccessUrl("/")
 				)
 				// make sure we use stateless session; 
