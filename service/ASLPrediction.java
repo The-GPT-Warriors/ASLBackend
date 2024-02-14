@@ -1,49 +1,55 @@
-package com.nighthawk.spring_portfolio.mvc.aslAI;
+package com.nighthawk.spring_portfolio.mvc.aslAI.service;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.web.client.RestTemplate;
+
+import com.nighthawk.spring_portfolio.mvc.aslAI.PredictionService;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
+
 import java.util.List;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-public class ASLPrediction {
-    
-@SpringBootApplication
-public class Application implements CommandLineRunner {
 
-    @Autowired
-    private PredictionService predictionService;
+@SpringBootApplication
+public class ASLPrediction {
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        predictionService.fetchDataAndPredict();
+    @Bean
+    public CommandLineRunner commandLineRunner(PredictionService predictionService) {
+        return args -> predictionService.fetchDataAndPredict();
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }
 
-@RestController
-class PredictionService {
+class Prediction {
 
     private final RestTemplate restTemplate;
 
+    @Autowired
     public PredictionService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public void fetchDataAndPredict() throws IOException {
-        
+        List<List<Integer>> testData = getPredictionData();
+        Object predictionResult = predictionLogic(testData);
+        postPrediction(predictionResult);
     }
 
-    private Object predictionLogic(List mnistData) throws IOException {
+    private Object predictionLogic(List<List<Integer>> mnistData) throws IOException {
         List<List<Integer>> data = readCSV("sign_mnist_train.csv");
         int lg = data.size();
         int lg1 = data.get(0).size();
@@ -54,8 +60,6 @@ class PredictionService {
                 x[i][j] = data.get(i + 1).get(j);
             }
         }
-
-        // Print examples of data
 
         double[][] weights = new double[25][lg1];
         int[] digit = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
@@ -87,7 +91,6 @@ class PredictionService {
             }
         }
 
-        // Further logic for testing and visualization can be added here
         List<List<Integer>> test = mnistData;
         int lgt = test.size();
         int lg1t = test.get(0).size() - 1;
@@ -98,8 +101,8 @@ class PredictionService {
                 xt[i][j] = test.get(i + 1).get(j);
             }
         }
+        double pred0 = -100000000;
         for (int ii = 0; ii < lgt - 1; ii++) {
-            double pred0 = -100000000;
             for (int s = 0; s < 25; s++) {
                 double y_pred = weights[s][0];
                 for (int k = 0; k < lg1t - 1; k++) {
@@ -113,7 +116,17 @@ class PredictionService {
         }
         return alphabet[s0];
     }
-    private static List<List<Integer>> readCSV(String fileName) throws IOException {
+
+    List<List<Integer>> getPredictionData() throws IOException {
+        return readCSV("sign_mnist_test.csv"); // Assuming you have a similar test file
+    }
+
+    private void postPrediction(Object prediction) {
+        System.out.println("Prediction: " + prediction);
+        // Here, you would have logic to POST this prediction to a REST endpoint or process it as needed.
+    }
+
+    private List<List<Integer>> readCSV(String fileName) throws IOException {
         List<List<Integer>> data = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
@@ -138,5 +151,4 @@ class PredictionService {
         }
         return data;
     }
-}
 }
