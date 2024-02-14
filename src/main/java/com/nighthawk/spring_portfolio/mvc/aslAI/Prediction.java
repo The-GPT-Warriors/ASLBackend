@@ -4,30 +4,29 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 
-@Entity // This annotation specifies that the class is an entity and is mapped to a database table.
+@Entity
 public class Prediction {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+    private String predictionData;
+    private LocalDateTime timestamp;
 
-    @Id // This annotation specifies the primary key of an entity.
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // This annotation specifies the strategy for generating the primary key values.
-    private Long id; // Represents the primary key column of the table.
+    // Constructors, Getters, and Setters
+    public Prediction() {}
 
-    private String predictionData; // Represents a column in the table that stores the prediction data.
-
-    // Standard getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPredictionData() {
-        return predictionData;
-    }
-
-    public void setPredictionData(String predictionData) {
+    public Prediction(String predictionData, LocalDateTime timestamp) {
         this.predictionData = predictionData;
+        this.timestamp = timestamp;
     }
+
+    // Getters and setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getPredictionData() { return predictionData; }
+    public void setPredictionData(String predictionData) { this.predictionData = predictionData; }
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 }
