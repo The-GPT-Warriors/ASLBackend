@@ -24,6 +24,7 @@ public class PredictionApiController {
     //     String predictionResult = predictionService.predictAndSave(mnistData);
     //     return new ResponseEntity<>(predictionResult, HttpStatus.OK);
     // }
+
     @PostMapping("/mnist")
     public ResponseEntity<String> receiveDataAndPredict(@RequestBody List<List<Integer>> mnistData) {
         String predictionResult = predictionService.predictAndSave(mnistData);
