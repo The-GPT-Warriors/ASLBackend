@@ -92,7 +92,7 @@ public class PredictionService {
         int m = weights[0].length - 1;
 
         double rate = 0.5;
-        int epoch = 5;  //change to 50 in final version
+        int epoch = 50;  //change to 50 in final version
         for (int s = 0; s < 25; s++) {
             for (int ii = 0; ii < epoch; ii++) {
                 double error = 0.0;
@@ -127,51 +127,34 @@ public class PredictionService {
         List<List<Integer>> test = mnistData;
  //       List<Integer> test = mnistData;
 
- /*        int lg1t = test.size();
-        System.out.println(test);
- //       int lg1t = test.get(0).size() - 1;
-        int s0 = 0;
-        int[] xt = new int[lg1t];
-        for (int i = 0; i < lg1t; i++) {
-                xt[i] = test.get(i);
-        }
-        
-        double pred0 = -100000000;
-        System.out.println(Arrays.toString(xt));
-
-            for (int s = 0; s < 25; s++) {
-                double y_pred = weights[s][0];
-                for (int k = 0; k < lg1t - 1; k++) {
-                    y_pred += weights[s][k + 1] * xt[k + 1];
- //                   System.out.println(xt[k + 1]);
-                }
-                if (y_pred > pred0) {
-                    pred0 = y_pred;
-                    s0 = s;
-                }
-            }*/
         int lgt = test.size();
         int lg1t = test.get(0).size() - 1;
+        System.out.println(lgt + ", " + lg1t);
         int s0 = 0;
-        int[][] xt = new int[lgt - 1][lg1t];
-        for (int i = 0; i < lgt - 1; i++) {
+        int[][] xt = new int[lgt][lg1t];
+        for (int i = 0; i < lgt; i++) {
             for (int j = 0; j < lg1t; j++) {
-                xt[i][j] = test.get(i + 1).get(j);
+                xt[i][j] = test.get(i).get(j+1);
             }
         }
+        for (int[] innerArray : xt) {
+            System.out.println(Arrays.toString(innerArray));
+        }
         double pred0 = -100000000;
-        for (int ii = 0; ii < lgt - 1; ii++) {
+ //       for (int ii = 0; ii < lgt - 1; ii++) {
             for (int s = 0; s < 25; s++) {
                 double y_pred = weights[s][0];
-                for (int k = 0; k < lg1t - 1; k++) {
-                    y_pred += weights[s][k + 1] * xt[ii][k + 1];
+                for (int k = 0; k < lg1t; k++) {
+                    y_pred += weights[s][k + 1] * xt[lgt-1][k];
+ //                   System.out.println(xt[lgt-1][k]);
                 }
                 if (y_pred > pred0) {
                     pred0 = y_pred;
                     s0 = s;
                 }
             }
-        }
+ //       }
+
         
 
  //       s0=11;  //for test only , REMOVE!
