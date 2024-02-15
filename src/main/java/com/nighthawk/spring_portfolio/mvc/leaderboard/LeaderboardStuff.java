@@ -1,6 +1,5 @@
 package com.nighthawk.spring_portfolio.mvc.leaderboard;
 
-import com.nighthawk.spring_portfolio.mvc.leaderboard.LeaderboardJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
