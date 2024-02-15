@@ -3,6 +3,7 @@ package com.nighthawk.spring_portfolio.mvc.aslAI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -10,22 +11,34 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 @Service
 public class PredictionService {
     private final PredictionRepository predictionRepository;
+    double[][] weights = new double[25][785];  //weights are available to all classes within PredictionService
 
     @Autowired
     public PredictionService(PredictionRepository predictionRepository) {
         this.predictionRepository = predictionRepository;
     }
 
-    public String predictAndSave(List<List<Integer>> mnistData) {
+    // Here we want to run trainLogic method once after constructor to train the network by data from online repository
+    @PostConstruct
+    public void init() {
+        trainLogic();
+    }
+
+ //   public String predictAndSave(List<Integer> mnistData) {
+    public String predictAndSave(List<List<Integer>> mnistData) {   
+        System.out.println("---------predictAndSave");
+        //Here we run predictionLogic everytime new "mnistData" is obtained
         String predictionResult = predictionLogic(mnistData);
         savePrediction(predictionResult); // Save without needing to return the saved entity
         return predictionResult; // Return the result directly
     }
 
+    
     private List<List<Integer>> readCSV(String fileName) throws IOException {
         List<List<Integer>> data = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -51,9 +64,10 @@ public class PredictionService {
         }
         return data;
     }
-
-    // Assuming this is your prediction logic method
-    private String predictionLogic(List<List<Integer>> mnistData) {
+ 
+    // Assuming this is your train logic method; This is the methos to train only by online data
+    public String trainLogic() {
+        System.out.println("---------trainLogic");
         List<List<Integer>> data = new ArrayList<>();
         try {
             data = readCSV("sign_mnist_train.csv");
@@ -72,13 +86,13 @@ public class PredictionService {
             }
         }
 
-        double[][] weights = new double[25][lg1];
+ //       double[][] weights = new double[25][lg1];
         int[] digit = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
         String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"};
         int m = weights[0].length - 1;
 
         double rate = 0.5;
-        int epoch = 5;
+        int epoch = 5;  //change to 50 in final version
         for (int s = 0; s < 25; s++) {
             for (int ii = 0; ii < epoch; ii++) {
                 double error = 0.0;
@@ -101,30 +115,49 @@ public class PredictionService {
                 System.out.println("Letter: " + alphabet[s] + ", Epoch: " + ii + ", Error: " + error);
             }
         }
+        return null;
+    }
 
+    // Assuming this is your prediction logic method
+ //   private String predictionLogic(List<Integer> mnistData) {
+    private String predictionLogic(List<List<Integer>> mnistData) {       
+        String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y"};
+
+        // To test using mnistData
         List<List<Integer>> test = mnistData;
+ //       List<Integer> test = mnistData;
+
         int lgt = test.size();
         int lg1t = test.get(0).size() - 1;
+        System.out.println(lgt + ", " + lg1t);
         int s0 = 0;
-        int[][] xt = new int[lgt - 1][lg1t];
-        for (int i = 0; i < lgt - 1; i++) {
+        int[][] xt = new int[lgt][lg1t];
+        for (int i = 0; i < lgt; i++) {
             for (int j = 0; j < lg1t; j++) {
-                xt[i][j] = test.get(i + 1).get(j);
+                xt[i][j] = test.get(i).get(j+1);
             }
         }
+        for (int[] innerArray : xt) {
+            System.out.println(Arrays.toString(innerArray));
+        }
         double pred0 = -100000000;
-        for (int ii = 0; ii < lgt - 1; ii++) {
+ //       for (int ii = 0; ii < lgt - 1; ii++) {
             for (int s = 0; s < 25; s++) {
                 double y_pred = weights[s][0];
-                for (int k = 0; k < lg1t - 1; k++) {
-                    y_pred += weights[s][k + 1] * xt[ii][k + 1];
+                for (int k = 0; k < lg1t; k++) {
+                    y_pred += weights[s][k + 1] * xt[lgt-1][k];
+ //                   System.out.println(xt[lgt-1][k]);
                 }
                 if (y_pred > pred0) {
                     pred0 = y_pred;
                     s0 = s;
                 }
             }
-        }
+ //       }
+
+        
+
+ //       s0=11;  //for test only , REMOVE!
         return alphabet[s0];
     }
 
