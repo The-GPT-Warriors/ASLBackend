@@ -92,7 +92,7 @@ public class PredictionService {
         int m = weights[0].length - 1;
 
         double rate = 0.5;
-        int epoch = 5;  //change to 50 in final version
+        int epoch = 50;  //change to 50 in final version
         for (int s = 0; s < 25; s++) {
             for (int ii = 0; ii < epoch; ii++) {
                 double error = 0.0;
