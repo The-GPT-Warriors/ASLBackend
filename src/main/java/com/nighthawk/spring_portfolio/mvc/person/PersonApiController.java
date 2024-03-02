@@ -22,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.Getter;
+
 @RestController
 @RequestMapping("/api/person")
 public class PersonApiController {
@@ -43,7 +45,6 @@ public class PersonApiController {
     GET List of People
      */
     @GetMapping("/")
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<Person>> getPeople() {
         return new ResponseEntity<>( repository.findAllByOrderByNameAsc(), HttpStatus.OK);
     }
@@ -74,7 +75,7 @@ public class PersonApiController {
     /*
     DELETE individual Person using ID
      */
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Person> deletePerson(@PathVariable long id) {
         Optional<Person> optional = repository.findById(id);
         if (optional.isPresent()) {  // Good ID
@@ -89,22 +90,30 @@ public class PersonApiController {
     /*
     POST Aa record by Requesting Parameters from URI
      */
-    @PostMapping( "/post")
-    public ResponseEntity<Object> postPerson(@RequestParam("email") String email,
-                                             @RequestParam("password") String password,
-                                             @RequestParam("name") String name,
-                                             @RequestParam("dob") String dobString,
-                                             @RequestParam("username") String username) {
+
+    @Getter 
+    public static class PersonDto {
+        private String email;
+        private String password;
+        private String name;
+        private String dob;
+        private String username;
+    }
+     
+
+    @PostMapping("/")
+    public ResponseEntity<Object> postPerson(@RequestBody PersonDto personDto) {
+        // Validate dob input
         Date dob;
         try {
-            dob = new SimpleDateFormat("MM-dd-yyyy").parse(dobString);
+            dob = new SimpleDateFormat("MM-dd-yyyy").parse(personDto.getDob());
         } catch (Exception e) {
-            return new ResponseEntity<>(dobString +" error; try MM-dd-yyyy", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(personDto.getDob() + " error; try MM-dd-yyyy", HttpStatus.BAD_REQUEST);
         }
-        // A person object WITHOUT ID will create a new record with default roles as student
-        Person person = new Person(email, password, name, dob, username);
+        // A person object WITHOUT ID will create a new record in the database
+        Person person = new Person(personDto.getEmail(), personDto.getPassword(), personDto.getName(), dob, personDto.getUsername(), personDetailsService.findRole("USER"));
         personDetailsService.save(person);
-        return new ResponseEntity<>(username +" is created successfully", HttpStatus.CREATED);
+        return new ResponseEntity<>(personDto.getEmail() + " is created successfully", HttpStatus.CREATED);
     }
 
     /*
