@@ -5,10 +5,13 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -92,12 +95,13 @@ public class Person {
     
 
     // Constructor used when building object from an API
-    public Person(String email, String password, String name, Date dob, String username) {
+    public Person(String email, String password, String name, Date dob, String username, PersonRole role) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.dob = dob;
         this.username = username;
+        this.roles.add(role);
     }
 
     // A custom getter to return age from dob attribute
@@ -108,70 +112,46 @@ public class Person {
         return -1;
     }
 
+    public static Person createPerson(String name, String email, String password, String dob, String username) {
+        // By default, Spring Security expects roles to have a "ROLE_" prefix.
+        return createPerson(name, email, password, dob, username, Arrays.asList("ROLE_USER"));
+    }
+
+    public static Person createPerson(String name, String email, String password, String dob, String username, List<String> roleNames) {
+        Person person = new Person();
+        person.setName(name);
+        person.setEmail(email);
+        person.setPassword(password);
+        try {
+            Date date = new SimpleDateFormat("MM-dd-yyyy").parse(dob);
+            person.setDob(date);
+        } catch (Exception e) {
+            // handle exception
+        }
+        person.setUsername(username);
+    
+        List<PersonRole> roles = new ArrayList<>();
+        for (String roleName : roleNames) {
+            PersonRole role = new PersonRole(roleName);
+            roles.add(role);
+        }
+        person.setRoles(roles);
+    
+        return person;
+    }
+
     // Initialize static test data 
     public static Person[] init() {
-
-        // basics of class construction
-        Person p1 = new Person();
-        p1.setName("Tay Kim");
-        p1.setEmail("tay@gmail.com");
-        p1.setUsername("TayKimmy");
-        p1.setPassword("taykimmy123");
-        // adding Note to notes collection
-        try {  // All data that converts formats could fail
-            Date d = new SimpleDateFormat("MM-dd-yyyy").parse("05-13-2007");
-            p1.setDob(d);
-        } catch (Exception e) {
-            // no actions as dob default is good enough
-        }
-
-        Person p2 = new Person();
-        p2.setName("Anthony Bazhenov");
-        p2.setEmail("ant@gmail.com");
-        p2.setUsername("Ant11234");
-        p2.setPassword("ant11234123");
-        try {
-            Date d = new SimpleDateFormat("MM-dd-yyyy").parse("01-12-2007");
-            p2.setDob(d);
-        } catch (Exception e) {
-        }
-
-        Person p3 = new Person();
-        p3.setName("Ethan Tran");
-        p3.setEmail("ethan@gmail.com");
-        p3.setUsername("realethantran");
-        p3.setPassword("realethantran123");
-        try {
-            Date d = new SimpleDateFormat("MM-dd-yyyy").parse("05-19-2007");
-            p3.setDob(d);
-        } catch (Exception e) {
-        }
-
-        Person p4 = new Person();
-        p4.setName("Emaad Mir");
-        p4.setEmail("emaad@gmail.com");
-        p4.setUsername("Emaad-Mir");
-        p4.setPassword("emaad-mir123");
-        try {
-            Date d = new SimpleDateFormat("MM-dd-yyyy").parse("01-12-2007");
-            p4.setDob(d);
-        } catch (Exception e) {
-        }
-
-        Person p5 = new Person();
-        p5.setName("John Mortensen");
-        p5.setEmail("jm1021@gmail.com");
-        p5.setUsername("jmort29");
-        p5.setPassword("123Qwerty!");
-        try {
-            Date d = new SimpleDateFormat("MM-dd-yyyy").parse("10-21-1959");
-            p5.setDob(d);
-        } catch (Exception e) {
-        }
-
+        ArrayList<Person> persons = new ArrayList<>();
+        persons.add(createPerson("Tay Kim", "tay@gmail.com", "taykimmy123", "05-13-2007", "TayKimmy", Arrays.asList("ROLE_ADMIN", "ROLE_USER"))); 
+        persons.add(createPerson("Anthony Bazhenov", "ant@gmail.com", "ant11234123", "01-12-2007", "Ant11234", Arrays.asList("ROLE_ADMIN", "ROLE_USER"))); 
+        persons.add(createPerson("Ethan Tran", "ethan@gmail.com", "realethantran123", "05-19-2007", "realethantran", Arrays.asList("ROLE_ADMIN", "ROLE_USER"))); 
+        persons.add(createPerson("Emaad Mir", "emaad@gmail.com", "emaad-mir123", "01-12-2007", "Emaad-Mir", Arrays.asList("ROLE_ADMIN", "ROLE_USER"))); 
+        persons.add(createPerson("John Mortensen", "jm1021@gmail.com", "123Qwerty!", "10-21-1959", "jmort29", Arrays.asList("ROLE_ADMIN", "ROLE_USER"))); 
+        persons.add(createPerson("Thomas Edison", "toby@gmail.com", "123Toby!", "07-08-2001", "toby123", Arrays.asList("ROLE_USER")));
+        
         // Array definition and data initialization
-        Person persons[] = {p1, p2, p3, p4, p5};
-        return(persons);
+        return persons.toArray(new Person[0]);
     }
 
     public static void main(String[] args) {
