@@ -55,15 +55,15 @@ public class FrameApiController {
             ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
             BufferedImage image = ImageIO.read(bis);
 
-            BufferedImage resizedImage = new BufferedImage(28, 28, BufferedImage.TYPE_BYTE_GRAY);
+            BufferedImage resizedImage = new BufferedImage(256, 256, BufferedImage.TYPE_BYTE_GRAY);
             Graphics2D g = resizedImage.createGraphics();
-            g.drawImage(image, 0, 0, 28, 28, null);
+            g.drawImage(image, 0, 0, 256, 256, null);
             g.dispose();
 
             List<List<Integer>> mnistData = new ArrayList<>();
-            for (int y = 0; y < 28; y++) {
+            for (int y = 0; y < 256; y++) {
                 List<Integer> row = new ArrayList<>();
-                for (int x = 0; x < 28; x++) {
+                for (int x = 0; x < 256; x++) {
                     int pixel = resizedImage.getRGB(x, y) & 0xFF;
                     row.add(pixel);
                 }
