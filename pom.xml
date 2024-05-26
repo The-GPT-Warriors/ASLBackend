@@ -57,6 +57,23 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv</artifactId>
+            <version>1.5.7</version>
+        </dependency>
+        <dependency>
+        <groupId>org.bytedeco</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>5.0-1.5.7</version> <!-- This should match the javacv version -->
+            <classifier>macosx-x86_64</classifier> <!-- Change this according to your platform -->
+        </dependency>
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>5.0-1.5.7</version> <!-- This should match the javacv version -->
+            <classifier>macosx-arm64</classifier> <!-- If you are on M1 Mac -->
+        </dependency>
         <!-- View -->
         <dependency>
             <groupId>org.thymeleaf</groupId>
@@ -156,13 +173,16 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <configuration>
+                <mainClass>com.nighthawk.spring_portfolio.Main</mainClass>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
 
 </project>
